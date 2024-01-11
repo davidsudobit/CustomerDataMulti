@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<title>Customer Data</title>
+</head>
+
+<body>
+	
+	<div style="display: block; position: relative; height: 75px; width: 100%;">
+		<img style="position: absolute; left: 0px;" width="50" height="50" src="images/logo.png"
+			alt=""></img>
+		<div style="width: 180px; position: absolute; right: 0px;">Lorem ipsum, dolor sit amet
+			consectetur adipisicing amet consectetur adipisicing</div>
+	</div>
+
+	<div style="position: relative; display: block; height: 130px; width: 100%;">
+			
+		<div style=" position: absolute; width: 80%;">
+
+			<h2 class="heading">Lorem ipsum, dolor sit amet consectetur</h2>
+	
+			<p class="text-content">Lorem ipsum dolor sit amet consectetur
+				adipisicing elit. Iusto magnam labore cum fugit tenetur amet quisquam
+				id unde maiores consequatur</p>
+
+		</div>
+		
+	</div>
+
+	<div style="position: relative; left: 0px; width: 100%; margin-top: 12px;" th:if="${not #lists.isEmpty(customerDatas)}">
+
+		<div style="margin-bottom: 24px;" th:each="customerData : ${customerDatas}">
+		
+			<div style="font-size: 16px; font-weight: bold; padding: 3px 0px;" th:text="${customerData?.organizationName}"></div>
+		
+			<div th:if="${not #lists.isEmpty(customerData?.dataHolder)}">
+			
+				<div th:each="data : ${customerData?.dataHolder}">
+	
+					<div style="padding: 3px 0px;" class="data-list" th:if="${not (#strings.equals(data?.dataHeader,'CapitalSharePercentage')||#strings.equals(data?.dataHeader,'ReceivedInterestSharePercentage'))}">
+						<div style="position: relative; display: inline-block; text-align: left; width: 50%" th:text="${data?.dataHeader}"></div>
+						<div style="position: relative; display: inline-block; text-align: right; width: 49%;" th:text="${data?.dataContent}"></div>
+					</div>
+					
+					<div style="padding: 3px 0px;" class="data-list" th:if="${#strings.equals(data?.dataHeader,'CapitalSharePercentage')}">
+						<div style="position: relative; display: inline-block; text-align: left; width: 50%" th:text="${data?.dataHeader} + ' : ' + ${data?.dataContent}+'%'"></div>
+						<div style="position: relative; display: inline-block; text-align: right; width: 49%;" th:text="${customerData?.balanceShare}"></div>
+					</div>
+					
+					<div style="background-color: lightgrey; font-style: italic; font-weight: bold; padding: 3px 0px;" class="data-list"
+						 th:if="${#strings.equals(data?.dataHeader,'ReceivedInterestSharePercentage')}">
+						<div style="position: relative; display: inline-block; text-align: left; width: 50%" th:text="${data?.dataHeader} + ' : ' + ${data?.dataContent}+'%'"></div>
+						<div style="position: relative; display: inline-block; text-align: right; width: 49%;" th:text="${customerData?.interestShare}"></div>
+					</div>
+	
+				</div>
+	
+			</div>
+		
+		</div>
+		
+	</div>
+
+</body>
+
+	<!-- <style>
+	
+		.heading {
+			/* padding: 12px 12px; */
+			margin-top: 30px;
+			margin-bottom: 12px;
+		}
+
+		.text-content {
+			width: 600px;
+			/* padding: 0px 12px; */
+		}
+		
+		.data-list {
+			padding: 4px 6px;
+		}
+		
+	</style> -->
+	
+</html>

@@ -1,0 +1,9 @@
+EngagementNumber,EngagementType,ProductCode,ProductText,ReceivedInterest,PreliminaryTax,Balance,SignBalance,PaidInterest,Debth,InterestOverDesk,StatusText,Interest1,CapitalSharePercentage,ReceivedInterestSharePercentage,PaidInterestSharePercentage,ReceivedInterestShare,BalanceShare,PaidInterestShare,DebthShare,SignReceivedInterest,SignPreliminaryTax,SignPaidInterest,SignDebth,SignInterestOverDesk,SignReceivedInterestShare,SignPreliminaryTaxShare,SignBalanceShare,SignPaidInterestShare,SignDebthShare,SignInterestOverDeskShare,InterestType,Interest2,Interest3,Interest4,PreliminaryTaxShare,InterestOverDeskShare
+00000091701234561,L,,IKANO Banklån,,,49551.0000,-,5696.0000,49551.0000,,,10.9200,100.0000,100.0000,100.0000,,49551.0000,5696.0000,49551.0000,,,,,,,,,,,,,,,,,
+00000091701234562,D,,IKANO SparKonto,375.7700,112.0000,46689.8300,+,,46689.8300,,,1.2000,50.0000,50.0000,50.0000,187.8800,23344.9100,,23344.9100,,,,,,,,,,,,,,,,,
+00000091701234563,L,,IKANO Fordonslån,,,19551.0000,-,1696.0000,19551.0000,,,1.9200,100.0000,100.0000,100.0000,,19551.0000,1696.0000,19551.0000,,,,,,,,,,,,,,,,,
+00000091701234564,L,,IKANO Banklån,,,1337.0000,-,13.0000,1337.0000,,,13.3700,50.0000,50.0000,50.0000,,1337.0000,36.0000,1337.0000,,,,,,,,,,,,,,,,,
+00000091701234565,D,,IKANO SparKonto Plus,100.0000,50.0000,25000.0000,+,,25000.0000,,,1.2000,100.0000,100.0000,100.0000,50.0000,30000.0000,,30000.0000,,,,,,,,,,,,,,,,,
+00000091701234566,D,,IKANO SparKonto Fix,100.0000,50.0000,50000.0000,+,,50000.0000,,,5.2000,100.0000,100.0000,100.0000,50.0000,30000.0000,,30000.0000,,,,,,,,,,,,,,,,,
+00000091701234567,D,,IKANO SparKonto,100.0000,50.0000,99999.0000,+,,99999.0000,,,5.2000,100.0000,100.0000,100.0000,50.0000,30000.0000,,30000.0000,,,,,,,,,,,,,,,,,
+00000091701234568,D,,IKANO SparKonto,10540.0000,542220.0000,87123544.0000,+,,87123544.0000,,,9.1234,100.0000,100.0000,100.0000,53230.0000,3232000.0000,,3232000.0000,,,,,,,,,,,,,,,,,
