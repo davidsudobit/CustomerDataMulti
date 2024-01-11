@@ -172,8 +172,10 @@ public class CsvProcessorService {
 			
 			List<DataHolder> listOfData=new LinkedList<>();
 			
+			String accountId=preceddingZeroRemover(datas[0].toCharArray());
+			
 			CustomerData customerData=new CustomerData();
-			customerData.setOrganizationName(String.join(" ", datas[3], datas[0].substring(6)));
+			customerData.setOrganizationName(String.join(" ", datas[3], accountId));
 			customerData.setDataHolder(listOfData);
 			
 			if(datas[3].toLowerCase().contains("SparKonto".toLowerCase())) {
@@ -326,6 +328,22 @@ public class CsvProcessorService {
 			return data;
 			
 		}
+		
+	}
+	
+	private String preceddingZeroRemover(char dataArray[]) {
+		
+		for(int i=0;i<dataArray.length;i++) {
+			
+			if(dataArray[i]!='0') {
+				break;
+			}
+			
+			dataArray[i]=' ';
+			
+		}
+		
+		return String.valueOf(dataArray).stripLeading();
 		
 	}
 	
