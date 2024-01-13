@@ -1,5 +1,6 @@
 package com.CustomerData.Service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -12,27 +13,29 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 import org.springframework.stereotype.Service;
 
 import com.CustomerData.Model.CustomerData;
 import com.CustomerData.Model.DataHolder;
+import com.CustomerData.Model.SummaryData;
 
 @Service
 public class CsvProcessorService {
 	
 	private static final String SOURCE_FILE_PATH="C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\inputFiles\\organizations-100.csv";
 	
-	private static final String DEST_FILE_PATH="C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\organization-100.csv";
+//	private static final String DEST_FILE_PATH="C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\organization-100.csv";
 	
-	public List<CustomerData> processCsv(String filePath, String destPath) throws Exception {
+	public List<CustomerData> processCustomerData(String sourcePath) throws Exception {
 		
-		filePath=filePath==null?SOURCE_FILE_PATH:filePath;
-		destPath=destPath==null?DEST_FILE_PATH:destPath;
+		sourcePath=sourcePath==null?SOURCE_FILE_PATH:sourcePath;
+//		destPath=destPath==null?DEST_FILE_PATH:destPath;
 		
-		if(Files.exists(Paths.get(filePath))){
+		if(Files.exists(Paths.get(sourcePath))){
 			
-			List<String> inputLines=Files.readAllLines(Paths.get(filePath));
+			List<String> inputLines=Files.readAllLines(Paths.get(sourcePath));
 			List<String[]> inputData=parseAndSplitInputData(inputLines);
 //			inputData=dataProcessor(inputData);
 			List<CustomerData> listOfCustomerData=loadCustomerDataCustom(inputData);
@@ -45,7 +48,19 @@ public class CsvProcessorService {
 			
 		}
 		
-		throw new Exception("Source file not found : [ "+filePath+" ]");
+		throw new Exception("Source file not found : [ "+sourcePath+" ]");
+		
+	}
+	
+	public SummaryData processSummaryData(String sourcePath) throws IOException, DataFormatException {
+		
+		sourcePath=sourcePath==null?"C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\inputFiles\\secondcsv.csv":sourcePath;
+		
+		List<String> fileData=getFileData(sourcePath);
+		
+		List<String[]> linesData=parseAndSplitInputData(fileData);
+		
+		return loadSummaryData(linesData);
 		
 	}
 	
@@ -258,6 +273,29 @@ public class CsvProcessorService {
 		
 	}
 	
+	private SummaryData loadSummaryData(List<String[]> linesData) throws DataFormatException {
+		
+		String headings[]=linesData.remove(0);
+		
+		Integer summaryDataIndexes[]=loadIndexesForSummaryData(headings, null);
+		
+		SummaryData summaryDataOut= linesData.stream().map(datas->{
+			
+			SummaryData summaryData=new SummaryData();
+			
+			summaryData.setSummaryYear(datas[summaryDataIndexes[0]]);
+			summaryData.setSumReceivedInterest(formatData(datas[summaryDataIndexes[1]]));
+			summaryData.setSumPreliminaryTax(formatData(datas[summaryDataIndexes[2]]));
+			summaryData.setSumPaidInterest(formatData(datas[summaryDataIndexes[3]]));
+			
+			return summaryData;
+			
+		}).findFirst().orElseThrow(()->new DataFormatException("Summary data loading failed :("));
+		
+		return summaryDataOut;
+		
+	}
+	
 	private Integer[] loadIndexesForSavingsAccount(String headings[]) {
 		
 		String savingsAccountHeaderings="Interest1,ReceivedInterest,Balance,PreliminaryTax,CapitalSharePercentage,ReceivedInterestSharePercentage,BalanceShare,ReceivedInterestShare";
@@ -314,6 +352,32 @@ public class CsvProcessorService {
 		
 	}
 	
+	private Integer[] loadIndexesForSummaryData(String[] headings, String target) {
+		
+		String targetHeadings[]=target!=null?target.split(","):"YearConcerned,SumReceivedInterest,SumPreliminaryTax,SumPaidInterest".split(",");
+		
+		Integer summaryDataIndexes[]= new Integer[targetHeadings.length];
+		Integer indexOfIndexes=0;
+		
+		for(String targetHeading : targetHeadings) {
+			
+			for(int i=0;i<headings.length;i++) {
+				
+				if(targetHeading.equalsIgnoreCase(headings[i])) {
+					
+					summaryDataIndexes[indexOfIndexes++]=i;
+					break;
+					
+				}
+				
+			}
+			
+		}
+		
+		return summaryDataIndexes;
+		
+	}
+	
 	private String formatData(String data) {
 		
 		try {
@@ -344,6 +408,24 @@ public class CsvProcessorService {
 		}
 		
 		return String.valueOf(dataArray).stripLeading();
+		
+	}
+	
+	private List<String> getFileData(String filePath) throws IOException{
+		
+		if(isFileExists(filePath)) {
+			
+			return Files.readAllLines(Paths.get(filePath));
+			
+		}
+		
+		throw new FileNotFoundException("File not found : [ "+filePath+" ]");
+		
+	}
+	
+	private Boolean isFileExists(String filePath) {
+		
+		return Files.exists(Paths.get(filePath));
 		
 	}
 	

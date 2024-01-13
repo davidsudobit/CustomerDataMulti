@@ -11,21 +11,18 @@
 <body>
 	
 	<div style="display: block; position: relative; height: 75px; width: 100%;">
-		<img style="position: absolute; left: 0px;" width="50" height="50" src="images/logo.png"
+		<img style="position: absolute; left: 0px;" width="50" height="50" src="./src/main/resources/pdf-resources/images/logo.png"
 			alt=""></img>
-		<div style="width: 180px; position: absolute; right: 0px;">Lorem ipsum, dolor sit amet
-			consectetur adipisicing amet consectetur adipisicing</div>
+		<div style="width: 180px; position: absolute; right: 0px;" th:text="${customerAddress}"></div>
 	</div>
 
 	<div style="position: relative; display: block; height: 130px; width: 100%;">
 			
 		<div style=" position: absolute; width: 80%;">
 
-			<h2 class="heading">Lorem ipsum, dolor sit amet consectetur</h2>
+			<h2 th:text="${customerName}+' '+${summaryYear}" class="heading"></h2>
 	
-			<p class="text-content">Lorem ipsum dolor sit amet consectetur
-				adipisicing elit. Iusto magnam labore cum fugit tenetur amet quisquam
-				id unde maiores consequatur</p>
+			<p class="text-content" th:text="${customerContent}"></p>
 
 		</div>
 		
@@ -63,6 +60,25 @@
 		
 		</div>
 		
+	</div>
+	
+	<div style="width: 100%; background-color: lightgrey; font-style: italic; font-weight: bold;">
+		
+		<div style="width: 100%; padding: 2px 0px;">
+			<div style="display: inline-block; width: 50%; text-align: left;">SumReceivedInterest</div>
+			<div style="display: inline-block; width: 49%; text-align: right;" th:text="${sumReceivedInterest}"></div>
+		</div>
+		
+		<div style="width: 100%; padding: 2px 0px;">
+			<div style="display: inline-block; width: 50%; text-align: left;">SumPreliminaryTax</div>
+			<div style="display: inline-block; width: 49%; text-align: right;" th:text="${sumPreliminaryTax}"></div>
+		</div>
+		
+		<div style="width: 100%; padding: 2px 0px;">
+			<div style="display: inline-block; width: 50%; text-align: left;">SumPaidInterest</div>
+			<div style="display: inline-block; width: 49%; text-align: right;" th:text="${sumPaidInterest}"></div>
+		</div>
+	
 	</div>
 
 </body>
