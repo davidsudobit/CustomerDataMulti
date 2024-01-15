@@ -5,11 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -20,11 +17,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.CustomerData.Model.PathData;
 import com.CustomerData.Model.SummaryData;
+import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.lowagie.text.DocumentException;
 
 @Component
@@ -51,7 +45,7 @@ public class PdfService {
 //        return renderPdf(html, pathData.getDestPdfPath());
     }
     
-    private String renderPdfUsingIText(String html, String destPath) throws com.itextpdf.text.DocumentException, IOException {
+    private String renderPdfUsingIText(String html, String destPath) throws IOException {
     	
     	destPath=destPath==null?"C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\Output.pdf":destPath;
     	
@@ -60,6 +54,9 @@ public class PdfService {
 
         // Convert HTML to PDF
         try (OutputStream pdfOutputStream = new FileOutputStream(pdfFile)) {
+        	
+        	ConverterProperties converterProperties=new ConverterProperties();
+        	
             HtmlConverter.convertToPdf(html, pdfOutputStream);
         }
 	      
