@@ -18,6 +18,7 @@ import java.util.zip.DataFormatException;
 import javax.management.openmbean.InvalidKeyException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import com.CustomerData.Model.AccountData;
 import com.CustomerData.Model.CustomerData;
 import com.CustomerData.Model.DataHolder;
+import com.CustomerData.Model.Headings;
 import com.CustomerData.Model.PathData;
 import com.CustomerData.Model.SummaryData;
 
@@ -35,7 +37,8 @@ public class CsvProcessorService {
 	@Lazy
 	private PdfService pdfService;
 	
-	private static final String SOURCE_FILE_PATH="C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\inputFiles\\Dev1_YearlyStatementOverview2022.csv";
+	@Autowired
+	private Headings headingsConfig;
 	
 	private static List<String> accountDataHeadings;
 	
@@ -44,23 +47,41 @@ public class CsvProcessorService {
 	private static LinkedHashMap<String, List<String[]>> accountData;
 	
 	private static LinkedHashMap<String,List<String[]>> summaryData;
-	
-//	private static final String DEST_FILE_PATH="C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\YearlyStatements2022_sample-merged-Aligned.csv";
-	
+		
 	@Async
 	public void generatePdf(PathData pathData) throws Exception {
 		
 		validatePathdata(pathData);
-		pathData.setDestPdfPath(pathData.getDestPdfPath()!=null?pathData.getDestPdfPath():"C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\");
+		pathData.setDestPdfPath(pathData.getDestPdfPath()!=null?pathData.getDestPdfPath():headingsConfig.getPdfDestPath());
 		
 		processCustomerDataCustom(pathData.getAccountDataCsv());
 		processSummaryDataCustom(pathData.getSummaryDataCsv());
 		
-		List<CustomerData> customerDatas=loadAllData();
+		List<CustomerData> customerDatas=null;
 		
-//		System.out.println(pdfService.generatePdf(pathData, customerDatas.get(0)));
+		try {
+			
+			customerDatas=loadAllData();
+			
+		}
+		catch(DataFormatException e) {
+			
+			System.out.println("Error in processing CSV :( ; Error Details : [ "+e.getMessage()+" ]");
+			return;
+			
+		}
+		finally {
+			
+			accountDataHeadings.clear();
+			summaryDataHeadings.clear();
+			accountData.clear();
+			summaryData.clear();
+			
+		}
 		
 		System.out.print("\n<<<<< PDF Generation Started >>>>>\n");
+		
+//		System.out.println("\n"+pdfService.generatePdf(pathData, customerDatas.get(0))+"\n");
 		
 		customerDatas.forEach(customerData->{
 			
@@ -114,13 +135,13 @@ public class CsvProcessorService {
 	
 	public void processCustomerDataCustom(String sourcePath) throws Exception {
 		
-		sourcePath=sourcePath==null?SOURCE_FILE_PATH:sourcePath;
+		sourcePath=sourcePath==null?headingsConfig.getAccountCSVDefaultPath():sourcePath;
 		
 		List<String> inputLines=getFileData(sourcePath);
 		List<String[]> inputData=parseAndSplitInputData(inputLines);
-		
-		accountDataHeadings=Arrays.asList(inputData.remove(0));
-		accountData=removeDuplicates(inputData);
+	
+		accountDataHeadings=new LinkedList<>(Arrays.asList(inputData.remove(0)));
+		accountData=removeDuplicates(inputData, accountDataHeadings);
 		
 	}
 	
@@ -162,13 +183,13 @@ public class CsvProcessorService {
 		
 	public void processSummaryDataCustom(String sourcePath) throws IOException, DataFormatException {
 		
-		sourcePath=sourcePath==null?"C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\inputFiles\\secondcsv.csv":sourcePath;
+		sourcePath=sourcePath==null?headingsConfig.getSummaryCSVDefaultPath():sourcePath;
 		
 		List<String> fileData=getFileData(sourcePath);
 		List<String[]> linesData=parseAndSplitInputData(fileData);
 		
-		summaryDataHeadings=Arrays.asList(linesData.remove(0));
-		summaryData=removeDuplicates(linesData);
+		summaryDataHeadings=new LinkedList<>(Arrays.asList(linesData.remove(0)));
+		summaryData=removeDuplicates(linesData, summaryDataHeadings);
 		
 	}
 	
@@ -229,9 +250,9 @@ public class CsvProcessorService {
 //		
 //	}
 	
-	private LinkedHashMap<String, List<String[]>> removeDuplicates(List<String[]> datas){
+	private LinkedHashMap<String, List<String[]>> removeDuplicates(List<String[]> datas, List<String> headings){
 		
-		Map<String,List<String[]>> datasMap = datas.stream().collect(Collectors.groupingBy(inputDatas->inputDatas[getIndexOfHeading(accountDataHeadings, "SocialSecurityNumber")],LinkedHashMap<String, List<String[]>>::new, Collectors.mapping(Function.identity(), Collectors.toList())));
+		Map<String,List<String[]>> datasMap = datas.stream().collect(Collectors.groupingBy(inputDatas->inputDatas[getIndexOfHeading(headings, headingsConfig.getSsn())],LinkedHashMap<String, List<String[]>>::new, Collectors.mapping(Function.identity(), Collectors.toList())));
 		
 		return datasMap.entrySet().stream().map(entry->{
 			
@@ -256,7 +277,7 @@ public class CsvProcessorService {
 				
 			});
 			
-		}).flatMap(Function.identity()).collect(Collectors.groupingBy(processedData->processedData[getIndexOfHeading(accountDataHeadings, "SocialSecurityNumber")], LinkedHashMap<String,List<String[]>>::new, Collectors.mapping(Function.<String[]>identity(), Collectors.toList())));
+		}).flatMap(Function.identity()).collect(Collectors.groupingBy(processedData->processedData[getIndexOfHeading(headings, headingsConfig.getSsn())], LinkedHashMap<String,List<String[]>>::new, Collectors.mapping(Function.<String[]>identity(), Collectors.toList())));
 		
 	}
 	
@@ -323,33 +344,34 @@ public class CsvProcessorService {
 	
 	private List<AccountData> loadAccountDataCustom(List<String[]> inputData){
 		
-		Integer savingsAccountIndexes[]=loadIndexesForSavingsAccount(accountDataHeadings);
-		Integer loanAccountIndexes[]=loadIndexesForLoanAccount(accountDataHeadings);
+		Integer savingsAccountIndexes[]=loadIndexesForAccount(accountDataHeadings, headingsConfig.getSavingsAccount());
+		Integer loanAccountIndexes[]=loadIndexesForAccount(accountDataHeadings, headingsConfig.getLoanAccount());
 		
 		return inputData.stream().map(datas->{
 			
 			List<DataHolder> listOfData=new LinkedList<>();
 			
-			String accountId=preceddingZeroRemover(datas[getIndexOfHeading(accountDataHeadings, "EngagementNumber")].toCharArray());
+			String accountId=preceddingZeroRemover(datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getEngagementNumber())].toCharArray());
 			
 			AccountData accountData=new AccountData();
-			accountData.setAccountName(String.join(" ", datas[getIndexOfHeading(accountDataHeadings, "ProductText")], accountId));
+			
+			accountData.setAccountName(String.join(" ", datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getProductText())], accountId));
 			accountData.setDataHolder(listOfData);
 			
 			String customerAccountType=
-					datas[getIndexOfHeading(accountDataHeadings, "ProductText")].toLowerCase().contains("SparKonto".toLowerCase())?"sparkonto":
-						datas[getIndexOfHeading(accountDataHeadings, "ProductText")].toLowerCase().contains("Banklån".toLowerCase())?"banklån":
-							datas[getIndexOfHeading(accountDataHeadings, "ProductText")];
+					datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("SparKonto".toLowerCase())?"sparkonto":
+						datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("Banklån".toLowerCase())?"banklån":
+							datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())];
 			
 			switch(customerAccountType) {
 				
-				case "sparkonto" ->{
+				case "sparkonto" -> {
 					
 					for(int i=0;i<savingsAccountIndexes.length-2;i++) {
 						
 						Integer indexToFetch=savingsAccountIndexes[i];
 						
-						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase("CapitalSharePercentage")||accountDataHeadings.get(indexToFetch).equalsIgnoreCase("ReceivedInterestSharePercentage"))) {
+						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
 							
 							datas[indexToFetch]=formatData(datas[indexToFetch]);
 							
@@ -370,13 +392,13 @@ public class CsvProcessorService {
 					
 				}
 				
-				case "banklån" ->{
+				case "banklån" -> {
 					
 					for(int i=0;i<loanAccountIndexes.length-2;i++) {
 						
 						Integer indexToFetch=loanAccountIndexes[i];
 						
-						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase("CapitalSharePercentage")||accountDataHeadings.get(indexToFetch).equalsIgnoreCase("ReceivedInterestSharePercentage"))) {
+						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
 							
 							datas[indexToFetch]=formatData(datas[indexToFetch]);
 							
@@ -403,7 +425,7 @@ public class CsvProcessorService {
 						
 						Integer indexToFetch=loanAccountIndexes[i];
 						
-						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase("CapitalSharePercentage")||accountDataHeadings.get(indexToFetch).equalsIgnoreCase("ReceivedInterestSharePercentage"))) {
+						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
 							
 							datas[indexToFetch]=formatData(datas[indexToFetch]);
 							
@@ -425,13 +447,13 @@ public class CsvProcessorService {
 			
 			};
 			
-//			if(datas[getIndexOfHeading(accountDataHeadings, "ProductText")].toLowerCase().contains("SparKonto".toLowerCase())) {
+//			if(datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("SparKonto".toLowerCase())) {
 //				
 //				for(int i=0;i<savingsAccountIndexes.length-2;i++) {
 //					
 //					Integer indexToFetch=savingsAccountIndexes[i];
 //					
-//					if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase("CapitalSharePercentage")||accountDataHeadings.get(indexToFetch).equalsIgnoreCase("ReceivedInterestSharePercentage"))) {
+//					if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
 //						
 //						datas[indexToFetch]=formatData(datas[indexToFetch]);
 //						
@@ -455,7 +477,7 @@ public class CsvProcessorService {
 //					
 //					Integer indexToFetch=loanAccountIndexes[i];
 //					
-//					if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase("CapitalSharePercentage")||accountDataHeadings.get(indexToFetch).equalsIgnoreCase("ReceivedInterestSharePercentage"))) {
+//					if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
 //						
 //						datas[indexToFetch]=formatData(datas[indexToFetch]);
 //						
@@ -511,10 +533,10 @@ public class CsvProcessorService {
 			
 			SummaryData summaryData=new SummaryData();
 			
-			summaryData.setSummaryYear(datas[getIndexOfHeading(summaryDataHeadings, "YearConcerned")]);
-			summaryData.setSumReceivedInterest(formatData(datas[getIndexOfHeading(summaryDataHeadings, "SumReceivedInterest")]));
-			summaryData.setSumPreliminaryTax(formatData(datas[getIndexOfHeading(summaryDataHeadings, "SumPreliminaryTax")]));
-			summaryData.setSumPaidInterest(formatData(datas[getIndexOfHeading(summaryDataHeadings, "SumPaidInterest")]));
+			summaryData.setSummaryYear(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getYearConcerned())]);
+			summaryData.setSumReceivedInterest(formatData(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getSumReceivedInterest())]));
+			summaryData.setSumPreliminaryTax(formatData(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getSumPreliminaryTax())]));
+			summaryData.setSumPaidInterest(formatData(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getSumPaidInterest())]));
 			
 			return summaryData;
 			
@@ -528,11 +550,11 @@ public class CsvProcessorService {
 		
 		inputDatas.forEach(datas->{
 			
-			customerData.setCustomerName(datas[getIndexOfHeading(summaryDataHeadings, "Name")]);
-			customerData.setCareOfAddress(datas[getIndexOfHeading(summaryDataHeadings, "CareOfAddress")]);
-			customerData.setStreetName(datas[getIndexOfHeading(summaryDataHeadings, "StreetAddress")]);
-			customerData.setPincode(datas[getIndexOfHeading(summaryDataHeadings, "PostalCode")]);
-			customerData.setCity(datas[getIndexOfHeading(summaryDataHeadings, "City")]);
+			customerData.setCustomerName(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getName())]);
+			customerData.setCareOfAddress(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getCareOfAddress())]);
+			customerData.setStreetName(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getStreetAddress())]);
+			customerData.setPincode(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getPostalCode())]);
+			customerData.setCity(datas[getIndexOfHeading(summaryDataHeadings, headingsConfig.getCity())]);
 			
 		});
 		
@@ -572,22 +594,20 @@ public class CsvProcessorService {
 		
 	}
 	
-	private Integer[] loadIndexesForSavingsAccount(List<String> headings) {
+	private Integer[] loadIndexesForAccount(List<String> headings, String targetHeadings) {
 		
-		String savingsAccountHeaderings="Interest1,ReceivedInterest,Balance,PreliminaryTax,CapitalSharePercentage,ReceivedInterestSharePercentage,BalanceShare,ReceivedInterestShare";
+		String accountHeaders[]= targetHeadings.split(",");
 		
-		String savingsAccountHeaders[]= savingsAccountHeaderings.split(",");
-		
-		Integer savingsAccountIndexes[]= new Integer[savingsAccountHeaders.length];
+		Integer accountIndexes[]= new Integer[accountHeaders.length];
 		int indexOfIndexes=0;
 		
-		for(String header : savingsAccountHeaders) {
+		for(String header : accountHeaders) {
 			
 			for(int i=0;i<headings.size();i++) {
 				
 				if(headings.get(i).equalsIgnoreCase(header)) {
 					
-					savingsAccountIndexes[indexOfIndexes++]=i;
+					accountIndexes[indexOfIndexes++]=i;
 					break;
 					
 				}
@@ -596,63 +616,63 @@ public class CsvProcessorService {
 			
 		}
 		
-		return savingsAccountIndexes;
+		return accountIndexes;
 		
 	}
 	
-	private Integer[] loadIndexesForLoanAccount(List<String> headings) {
-		
-		String loanAccountHeaderings="PaidInterest,Debth,CapitalSharePercentage,ReceivedInterestSharePercentage,BalanceShare,PaidInterestShare";
-		
-		String loanAccountHeaders[]= loanAccountHeaderings.split(",");
-		
-		Integer loanAccountIndexes[]= new Integer[loanAccountHeaders.length];
-		int indexOfIndexes=0;
-		
-		for(String header : loanAccountHeaders) {
-			
-			for(int i=0;i<headings.size();i++) {
-				
-				if(headings.get(i).equalsIgnoreCase(header)) {
-					
-					loanAccountIndexes[indexOfIndexes++]=i;
-					break;
-					
-				}
-				
-			}
-			
-		}
-		
-		return loanAccountIndexes;
-		
-	}
+//	private Integer[] loadIndexesForLoanAccount(List<String> headings) {
+//		
+//		String loanAccountHeaderings="PaidInterest,Debth,CapitalSharePercentage,ReceivedInterestSharePercentage,BalanceShare,PaidInterestShare";
+//		
+//		String loanAccountHeaders[]= loanAccountHeaderings.split(",");
+//		
+//		Integer loanAccountIndexes[]= new Integer[loanAccountHeaders.length];
+//		int indexOfIndexes=0;
+//		
+//		for(String header : loanAccountHeaders) {
+//			
+//			for(int i=0;i<headings.size();i++) {
+//				
+//				if(headings.get(i).equalsIgnoreCase(header)) {
+//					
+//					loanAccountIndexes[indexOfIndexes++]=i;
+//					break;
+//					
+//				}
+//				
+//			}
+//			
+//		}
+//		
+//		return loanAccountIndexes;
+//		
+//	}
 	
-	private Integer[] loadIndexesForSummaryData(List<String> headings, String target) {
-		
-		String targetHeadings[]=target!=null?target.split(","):"YearConcerned,SumReceivedInterest,SumPreliminaryTax,SumPaidInterest".split(",");
-		
-		Integer summaryDataIndexes[]= new Integer[targetHeadings.length];
-		Integer indexOfIndexes=0;
-		
-		for(String targetHeading : targetHeadings) {
-			
-			for(int i=0;i<headings.size();i++) {
-				
-				if(targetHeading.equalsIgnoreCase(headings.get(i))) {
-					
-					summaryDataIndexes[indexOfIndexes++]=i;
-					break;
-					
-				}
-				
-			}
-			
-		}
-		
-		return summaryDataIndexes;
-		
-	}
+//	private Integer[] loadIndexesForSummaryData(List<String> headings, String target) {
+//		
+//		String targetHeadings[]=target!=null?target.split(","):"YearConcerned,SumReceivedInterest,SumPreliminaryTax,SumPaidInterest".split(",");
+//		
+//		Integer summaryDataIndexes[]= new Integer[targetHeadings.length];
+//		Integer indexOfIndexes=0;
+//		
+//		for(String targetHeading : targetHeadings) {
+//			
+//			for(int i=0;i<headings.size();i++) {
+//				
+//				if(targetHeading.equalsIgnoreCase(headings.get(i))) {
+//					
+//					summaryDataIndexes[indexOfIndexes++]=i;
+//					break;
+//					
+//				}
+//				
+//			}
+//			
+//		}
+//		
+//		return summaryDataIndexes;
+//		
+//	}
 	
 	private String formatData(String data) {
 		

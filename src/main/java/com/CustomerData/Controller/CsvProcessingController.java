@@ -40,8 +40,8 @@ public class CsvProcessingController {
 //		
 //	}
 	
-	@GetMapping(path = { "/processedData" })
-	public ResponseEntity<String> processData(@RequestBody PathData pathData) throws Exception{
+	@GetMapping(path = { "/generate-pdf" })
+	public ResponseEntity<String> processData(@RequestBody(required = false) PathData pathData) throws Exception{
 		
 		csvProcessorService.generatePdf(pathData);
 		return ResponseEntity.status(HttpStatus.OK).body("Started");
@@ -85,17 +85,17 @@ public class CsvProcessingController {
 //		
 //	}
 	
-	@GetMapping(path = { "/generate-pdf" })
-	public ResponseEntity<String> generatePdf(@RequestBody(required = true) PathData pathData) throws Exception{
-		
-		return ResponseEntity.status(HttpStatus.OK).body(itextPdfService.createPdf(pathData));
-		
-//		return ResponseEntity.status(HttpStatus.OK).body(pdfService.generatePdf(pathData));
-		
-//		return pdfService.generatePdf()
-//				? ResponseEntity.status(HttpStatus.OK).body("Output PDF generated!")
-//						: ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Some problem occured :(");
-		
-	}
+//	@GetMapping(path = { "/generate-pdf" })
+//	public ResponseEntity<String> generatePdf(@RequestBody(required = true) PathData pathData) throws Exception{
+//		
+//		return ResponseEntity.status(HttpStatus.OK).body(itextPdfService.createPdf(pathData));
+//		
+////		return ResponseEntity.status(HttpStatus.OK).body(pdfService.generatePdf(pathData));
+//		
+////		return pdfService.generatePdf()
+////				? ResponseEntity.status(HttpStatus.OK).body("Output PDF generated!")
+////						: ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Some problem occured :(");
+//		
+//	}
 
 }

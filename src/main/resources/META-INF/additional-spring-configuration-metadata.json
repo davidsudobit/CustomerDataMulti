@@ -1,0 +1,142 @@
+{"properties": [
+  {
+    "name": "target.headings.savingsAccount",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.savingsAccount'"
+  },
+  {
+    "name": "target.headings.loadAccount",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.loadAccount'"
+  },
+  {
+    "name": "csv.processor.default.account_csv_source_path",
+    "type": "java.lang.String",
+    "description": "A description for 'csv.processor.default.account_csv_source_path'"
+  },
+  {
+    "name": "csv.processor.default.summary_csv_source_path",
+    "type": "java.lang.String",
+    "description": "A description for 'csv.processor.default.summary_csv_source_path'"
+  },
+  {
+    "name": "target.headings.savings_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.savings_account'"
+  },
+  {
+    "name": "target.headings.load_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.load_account'"
+  },
+  {
+    "name": "target.headings.load_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.load_account'"
+  },
+  {
+    "name": "target.headings.load_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.load_account'"
+  },
+  {
+    "name": "target.headings.load_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.load_account'"
+  },
+  {
+    "name": "target.heading.engagement_number",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.engagement_number'"
+  },
+  {
+    "name": "target.heading.ssn",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.ssn'"
+  },
+  {
+    "name": "target.heading.product_text",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.product_text'"
+  },
+  {
+    "name": "target.heading.capital_share_percentage",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.capital_share_percentage'"
+  },
+  {
+    "name": "target.heading.received_interest_share_percentage",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.received_interest_share_percentage'"
+  },
+  {
+    "name": "target.heading.sum_received_interest",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.sum_received_interest'"
+  },
+  {
+    "name": "target.heading.year_concerned",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.year_concerned'"
+  },
+  {
+    "name": "target.heading.sum_preliminary_tax",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.sum_preliminary_tax'"
+  },
+  {
+    "name": "target.heading.sum_paid_interest",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.sum_paid_interest'"
+  },
+  {
+    "name": "target.heading.name",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.name'"
+  },
+  {
+    "name": "target.heading.care_of_address",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.care_of_address'"
+  },
+  {
+    "name": "target.heading.postal_code",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.postal_code'"
+  },
+  {
+    "name": "target.heading.street_address",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.street_address'"
+  },
+  {
+    "name": "target.heading.city",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.city'"
+  },
+  {
+    "name": "target.headings.loan_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.loan_account'"
+  },
+  {
+    "name": "target.headings.loan_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.loan_account'"
+  },
+  {
+    "name": "target.headings.loan_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.loan_account'"
+  },
+  {
+    "name": "target.headings.loan_account",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.loan_account'"
+  },
+  {
+    "name": "csv.processor.default.pdf_dest_path",
+    "type": "java.lang.String",
+    "description": "A description for 'csv.processor.default.pdf_dest_path'"
+  }
+]}
