@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PathData {
 	
-	private String customerDataCsv;
+	private String accountDataCsv;
 	
 	private String summaryDataCsv;
 	

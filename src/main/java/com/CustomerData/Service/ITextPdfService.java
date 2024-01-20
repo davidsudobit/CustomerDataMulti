@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.CustomerData.Model.CustomerData;
+import com.CustomerData.Model.AccountData;
 import com.CustomerData.Model.PathData;
 import com.CustomerData.Model.SummaryData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -38,7 +38,7 @@ public class ITextPdfService {
 	
 	private static String destPath="C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\output-itext.pdf";
 	
-	private List<CustomerData> customerData;
+	private List<AccountData> customerData;
 	private SummaryData summaryData;
 	
 	public String createPdf(PathData pathData) throws Exception {
@@ -132,7 +132,7 @@ public class ITextPdfService {
 			cellStyle.setFontSize(10);
 			
 			Cell accountName=new Cell();
-			accountName.add(new Paragraph(data.getOrganizationName()).setFontSize(12).setBold());
+			accountName.add(new Paragraph(data.getAccountName()).setFontSize(12).setBold());
 			accountName.setWidth(UnitValue.createPercentValue(50));
 			accountName.addStyle(cellStyle);
 			
@@ -281,8 +281,8 @@ public class ITextPdfService {
 	
 	private void loadData(PathData pathData) throws Exception {
 		
-		this.customerData=csvProcessorService.processCustomerData(pathData.getCustomerDataCsv());
-		this.summaryData=csvProcessorService.processSummaryData(pathData.getSummaryDataCsv());
+//		this.customerData=csvProcessorService.processCustomerData(pathData.getAccountDataCsv());
+//		this.summaryData=csvProcessorService.processSummaryData(pathData.getSummaryDataCsv());
 		destPath=pathData.getDestPdfPath();
 		
 	}
@@ -291,19 +291,19 @@ public class ITextPdfService {
     	
     	if(pathData!=null) {
     		
-    		if(pathData.getCustomerDataCsv()!=null&&pathData.getSummaryDataCsv()!=null&&pathData.getDestPdfPath()!=null) {
+    		if(pathData.getAccountDataCsv()!=null&&pathData.getSummaryDataCsv()!=null&&pathData.getDestPdfPath()!=null) {
     			
-    			if(Files.exists(Paths.get(pathData.getCustomerDataCsv()))&&Files.exists(Paths.get(pathData.getSummaryDataCsv()))) {
+    			if(Files.exists(Paths.get(pathData.getAccountDataCsv()))&&Files.exists(Paths.get(pathData.getSummaryDataCsv()))) {
     				
     				return pathData;
     				
     			}
     			
-    			throw new FileNotFoundException("Some of the input files not found : [ "+ String.join(", ", pathData.getCustomerDataCsv(), pathData.getSummaryDataCsv()) +" ]");
+    			throw new FileNotFoundException("Some of the input files not found : [ "+ String.join(", ", pathData.getAccountDataCsv(), pathData.getSummaryDataCsv()) +" ]");
     			
     		}
     		
-    		throw new IllegalArgumentException("Some of the input files paths are null : [ "+ String.join(", ", pathData.getCustomerDataCsv(), pathData.getSummaryDataCsv()) +" ]");
+    		throw new IllegalArgumentException("Some of the input files paths are null : [ "+ String.join(", ", pathData.getAccountDataCsv(), pathData.getSummaryDataCsv()) +" ]");
     		
     	}
     	

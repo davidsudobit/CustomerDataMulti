@@ -11,14 +11,25 @@
 <body>
 	
 	<div style="display: block; position: relative; height: 75px; width: 100%;">
-		<img style="position: absolute; left: 0px;" width="50" height="50" src="./src/main/resources/pdf-resources/images/logo.png"
+		<div style="position: relative; display: inline-block; text-align: left; width: 50%;">
+		
+			<img style="display: block;" width="50" height="50" src="./src/main/resources/pdf-resources/images/logo.png"
 			alt=""></img>
-		<div style="width: 180px; position: absolute; right: 0px;" th:text="${customerAddress}"></div>
+			
+		</div>
+		<div style="width: 180px; position: relative; display: inline-block; width: 50%; text-align: right;">
+			
+			<div th:text="${customerCareOfAddress}" style="padding-bottom: 4px;"></div>
+			<div th:text="${customerStreetName}" style="padding-bottom: 4px;"></div>
+			<div th:text="${customerCity}" style="padding-bottom: 4px;"></div>
+			<div th:text="${customerPincode}" style="padding-bottom: 4px;"></div>
+			
+		</div>
 	</div>
 
-	<div style="position: relative; display: block; height: 130px; width: 100%;">
+	<div style="position: relative; display: block; height: 100px; width: 100%;">
 			
-		<div style=" position: absolute; width: 80%;">
+		<div style=" position: relative; width: 80%;">
 
 			<h2 th:text="${customerName}+' '+${summaryYear}" class="heading"></h2>
 	
@@ -32,7 +43,7 @@
 
 		<div style="margin-bottom: 24px;" th:each="customerData : ${customerDatas}">
 		
-			<div style="font-size: 16px; font-weight: bold; padding: 3px 0px;" th:text="${customerData?.organizationName}"></div>
+			<div style="font-size: 16px; font-weight: bold; padding: 3px 0px;" th:text="${customerData?.accountName}"></div>
 		
 			<div th:if="${not #lists.isEmpty(customerData?.dataHolder)}">
 			

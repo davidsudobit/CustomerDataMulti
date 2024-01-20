@@ -1,6 +1,8 @@
 package com.CustomerData.Controller;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.CustomerData.Model.AccountData;
+import com.CustomerData.Model.CustomerData;
 import com.CustomerData.Model.PathData;
 import com.CustomerData.Service.CsvProcessorService;
 import com.CustomerData.Service.ITextPdfService;
@@ -34,6 +39,14 @@ public class CsvProcessingController {
 //		return ResponseEntity.status(HttpStatus.OK).body(csvProcessorService.processCustomerData(sourcePath));
 //		
 //	}
+	
+	@GetMapping(path = { "/processedData" })
+	public ResponseEntity<String> processData(@RequestBody PathData pathData) throws Exception{
+		
+		csvProcessorService.generatePdf(pathData);
+		return ResponseEntity.status(HttpStatus.OK).body("Started");
+		
+	}
 	
 //	@GetMapping(path = { "/process-summary-data" })
 //	public ResponseEntity<SummaryData> processSummaryData(@RequestParam(name = "sourcePath", required = false) String sourcePath, @RequestParam(name = "destPath", required = false) String destPath) throws IOException, DataFormatException{

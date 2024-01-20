@@ -15,6 +15,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import com.CustomerData.Model.CustomerData;
 import com.CustomerData.Model.PathData;
 import com.CustomerData.Model.SummaryData;
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -34,20 +35,19 @@ public class PdfService {
         this.templateEngine = templateEngine;
     }
 
-    public String generatePdf(PathData pathData) throws Exception {
+    public String generatePdf(PathData pathData, CustomerData customerData) throws Exception {
     	
-    	validatePathdata(pathData);
-    	
-        Context context = getContext(pathData);
+        Context context = getContext(pathData, customerData);
         String html = loadAndFillTemplate(context);
         
-        return renderPdfUsingIText(html, pathData.getDestPdfPath());
+        String pdfName=String.format("%s_%s.pdf", customerData.getSsn(),customerData.getSummaryData().getSummaryYear());
+        return renderPdfUsingIText(html, pathData.getDestPdfPath()+pdfName);
+        
 //        return renderPdf(html, pathData.getDestPdfPath());
+        
     }
     
     private String renderPdfUsingIText(String html, String destPath) throws IOException {
-    	
-    	destPath=destPath==null?"C:\\Users\\sr73\\OneDrive - Capgemini\\Documents\\workspace-spring-tool-suite\\CustomerData\\src\\main\\resources\\outputFiles\\Output.pdf":destPath;
     	
     	File pdfFile = new File(destPath);
 //        pdfFile.getParentFile().mkdirs();
@@ -58,6 +58,7 @@ public class PdfService {
         	ConverterProperties converterProperties=new ConverterProperties();
         	
             HtmlConverter.convertToPdf(html, pdfOutputStream);
+            
         }
 	      
 	    return Files.exists(Paths.get(destPath))?destPath:"Error processing pdf :(";
@@ -82,18 +83,19 @@ public class PdfService {
         
     }
 
-    private Context getContext(PathData pathData) throws Exception {
+    private Context getContext(PathData pathData, CustomerData customerData) throws Exception {
     	
         Context context = new Context();
-        context.setVariable("customerDatas", csvProcessorService.processCustomerData(pathData.getCustomerDataCsv()));
+        context.setVariable("customerDatas", customerData.getAccountData());
        
-        SummaryData summaryData=csvProcessorService.processSummaryData(pathData.getSummaryDataCsv());
+        SummaryData summaryData=customerData.getSummaryData();
 		
-		context.setVariable("customerName", "BroKoi");
+		context.setVariable("customerName", customerData.getCustomerName());
 		context.setVariable("summaryYear", summaryData.getSummaryYear());
-		context.setVariable("customerAddress", "Lorem ipsum dolor sit amet consectetur\r\n"
-				+ "				adipisicing elit. Iusto magnam labore cum fugit tenetur amet quisquam\r\n"
-				+ "				id unde maiores consequatur");
+		context.setVariable("customerCareOfAddress", customerData.getCareOfAddress());
+		context.setVariable("customerStreetName", customerData.getStreetName());
+		context.setVariable("customerCity", customerData.getCity());
+		context.setVariable("customerPincode", customerData.getPincode());
 		context.setVariable("customerContent", "Lorem ipsum dolor sit amet consectetur");
 		context.setVariable("sumReceivedInterest", summaryData.getSumReceivedInterest());
 		context.setVariable("sumPreliminaryTax", summaryData.getSumPreliminaryTax());
@@ -105,30 +107,6 @@ public class PdfService {
 
     private String loadAndFillTemplate(Context context) {
         return templateEngine.process("customer_data", context);
-    }
-    
-    private PathData validatePathdata(PathData pathData) throws FileNotFoundException, IllegalArgumentException, NullPointerException {
-    	
-    	if(pathData!=null) {
-    		
-    		if(pathData.getCustomerDataCsv()!=null&&pathData.getSummaryDataCsv()!=null&&pathData.getDestPdfPath()!=null) {
-    			
-    			if(Files.exists(Paths.get(pathData.getCustomerDataCsv()))&&Files.exists(Paths.get(pathData.getSummaryDataCsv()))) {
-    				
-    				return pathData;
-    				
-    			}
-    			
-    			throw new FileNotFoundException("Some of the input files not found : [ "+ String.join(", ", pathData.getCustomerDataCsv(), pathData.getSummaryDataCsv()) +" ]");
-    			
-    		}
-    		
-    		throw new IllegalArgumentException("Some of the input files paths are null : [ "+ String.join(", ", pathData.getCustomerDataCsv(), pathData.getSummaryDataCsv()) +" ]");
-    		
-    	}
-    	
-    	throw new NullPointerException("Pathdata is null");
-    	
     }
 	
 }

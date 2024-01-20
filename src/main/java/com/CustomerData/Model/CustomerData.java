@@ -11,12 +11,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomerData {
 	
-	private String organizationName;
+	private String ssn;
 	
-	private List<DataHolder> dataHolder;
+	private String customerName;
 	
-	private String balanceShare;
+	private String careOfAddress;
 	
-	private String interestShare;
+	private String streetName;
+	
+	private String city;
+	
+	private String pincode;
+	
+	private List<AccountData> accountData;
+	
+	private SummaryData summaryData;
 
 }
