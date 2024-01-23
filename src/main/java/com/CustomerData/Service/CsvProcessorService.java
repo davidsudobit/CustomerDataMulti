@@ -173,7 +173,6 @@ public class CsvProcessorService {
 	private List<AccountData> loadAccountDataCustom(List<String[]> inputData){
 		
 		Integer savingsAccountIndexes[]=loadIndexesForAccount(accountDataHeadings, headingsConfig.getSavingsAccount());
-		Integer loanAccountIndexes[]=loadIndexesForAccount(accountDataHeadings, headingsConfig.getLoanAccount());
 		
 		return inputData.stream().map(datas->{
 			
@@ -186,94 +185,26 @@ public class CsvProcessorService {
 			accountData.setAccountName(String.join(" ", datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getProductText())], accountId));
 			accountData.setDataHolder(listOfData);
 			
-			String customerAccountType=
-					datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("konto".toLowerCase())?"konto":
-						datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("lån".toLowerCase())?"lån":
-							datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())];
+			for(int i=0;i<savingsAccountIndexes.length-2;i++) {
+				
+				Integer indexToFetch=savingsAccountIndexes[i];
+				
+				if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
+					
+					datas[indexToFetch]=formatData(datas[indexToFetch]);
+					
+				}else {
+					datas[indexToFetch]=String.format("%.0f", Double.parseDouble(datas[indexToFetch]));
+				}
+				
+				listOfData.add(new DataHolder(accountDataHeadings.get(indexToFetch), (i==0)?datas[indexToFetch]+"%":datas[indexToFetch]));
+				
+			}
 			
-			switch(customerAccountType) {
-				
-				case "konto" -> {
-					
-					for(int i=0;i<savingsAccountIndexes.length-2;i++) {
-						
-						Integer indexToFetch=savingsAccountIndexes[i];
-						
-						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
-							
-							datas[indexToFetch]=formatData(datas[indexToFetch]);
-							
-						}else {
-							datas[indexToFetch]=String.format("%.0f", Double.parseDouble(datas[indexToFetch]));
-						}
-						
-						listOfData.add(new DataHolder(accountDataHeadings.get(indexToFetch), (i==0)?datas[indexToFetch]+"%":datas[indexToFetch]));
-						
-					}
-					
-					Integer indexToFetch=savingsAccountIndexes.length;
-					
-					accountData.setBalanceShare(formatData(datas[savingsAccountIndexes[indexToFetch-2]]));
-					accountData.setInterestShare(formatData(datas[savingsAccountIndexes[indexToFetch-1]]));
-					
-					break;
-					
-				}
-				
-				case "lån" -> {
-					
-					for(int i=0;i<loanAccountIndexes.length-2;i++) {
-						
-						Integer indexToFetch=loanAccountIndexes[i];
-						
-						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
-							
-							datas[indexToFetch]=formatData(datas[indexToFetch]);
-							
-						}else {
-							datas[indexToFetch]=String.format("%.0f", Double.parseDouble(datas[indexToFetch]));
-						}
-						
-						listOfData.add(new DataHolder(accountDataHeadings.get(indexToFetch), datas[indexToFetch]));
-						
-					}
-					
-					Integer indexToFetch=loanAccountIndexes.length;
-					
-					accountData.setBalanceShare(formatData(datas[loanAccountIndexes[indexToFetch-2]]));
-					accountData.setInterestShare(formatData(datas[loanAccountIndexes[indexToFetch-1]]));
-					
-					break;
-					
-				}
-				
-				default ->{
-					
-					for(int i=0;i<loanAccountIndexes.length-2;i++) {
-						
-						Integer indexToFetch=loanAccountIndexes[i];
-						
-						if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
-							
-							datas[indexToFetch]=formatData(datas[indexToFetch]);
-							
-						}else {
-							datas[indexToFetch]=String.format("%.0f", Double.parseDouble(datas[indexToFetch]));
-						}
-						
-						listOfData.add(new DataHolder(accountDataHeadings.get(indexToFetch), datas[indexToFetch]));
-						
-					}
-					
-					Integer indexToFetch=loanAccountIndexes.length;
-					
-					accountData.setBalanceShare(formatData(datas[loanAccountIndexes[indexToFetch-2]]));
-					accountData.setInterestShare(formatData(datas[loanAccountIndexes[indexToFetch-1]]));
-					
-				}
-					
+			Integer indexToFetch=savingsAccountIndexes.length;
 			
-			};
+			accountData.setBalanceShare(formatData(datas[savingsAccountIndexes[indexToFetch-2]]));
+			accountData.setInterestShare(formatData(datas[savingsAccountIndexes[indexToFetch-1]]));
 			
 //			if(datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("SparKonto".toLowerCase())) {
 //				
