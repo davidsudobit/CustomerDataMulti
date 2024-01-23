@@ -21,13 +21,12 @@
 			
 			<div th:text="${customerCareOfAddress}" style="padding-bottom: 4px;"></div>
 			<div th:text="${customerStreetName}" style="padding-bottom: 4px;"></div>
-			<div th:text="${customerCity}" style="padding-bottom: 4px;"></div>
-			<div th:text="${customerPincode}" style="padding-bottom: 4px;"></div>
+			<div th:text="${customerPostalCode}+' '+${customerCity}" style="padding-bottom: 4px;"></div>
 			
 		</div>
 	</div>
 
-	<div style="position: relative; display: block; height: 100px; width: 100%;">
+	<div style="position: relative; display: block; height: 120px; width: 100%;">
 			
 		<div style=" position: relative; width: 80%;">
 

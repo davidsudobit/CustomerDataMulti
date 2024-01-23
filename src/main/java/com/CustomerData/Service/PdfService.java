@@ -64,7 +64,7 @@ public class PdfService {
 		context.setVariable("customerCareOfAddress", customerData.getCareOfAddress());
 		context.setVariable("customerStreetName", customerData.getStreetName());
 		context.setVariable("customerCity", customerData.getCity());
-		context.setVariable("customerPincode", customerData.getPincode());
+		context.setVariable("customerPostalCode", customerData.getPincode());
 		context.setVariable("customerContent", "Lorem ipsum dolor sit amet consectetur");
 		context.setVariable("sumReceivedInterest", summaryData.getSumReceivedInterest());
 		context.setVariable("sumPreliminaryTax", summaryData.getSumPreliminaryTax());

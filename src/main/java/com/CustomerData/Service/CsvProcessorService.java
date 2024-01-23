@@ -77,21 +77,21 @@ public class CsvProcessorService {
 		
 		System.out.print("\n<<<<< PDF Generation Started >>>>>\n");
 		
-//		System.out.println("\n"+pdfService.generatePdf(pathData, customerDatas.get(0))+"\n");
+		System.out.println("\n"+pdfService.generatePdf(pathData, customerDatas.get(0))+"\n");
 		
-		customerDatas.forEach(customerData->{
-			
-			try {
-				
-				System.out.print("\n"+pdfService.generatePdf(pathData, customerData)+"\n");
-				
-			} catch (Exception e) {
-				
-				System.out.printf("Error Generating PDF : [ %s ]", pathData.getDestPdfPath()+String.format("%s_%s.pdf", customerData.getSsn(),customerData.getSummaryData().getSummaryYear()));
-				
-			}
-			
-		});
+//		customerDatas.forEach(customerData->{
+//			
+//			try {
+//				
+//				System.out.print("\n"+pdfService.generatePdf(pathData, customerData)+"\n");
+//				
+//			} catch (Exception e) {
+//				
+//				System.out.printf("Error Generating PDF : [ %s ]", pathData.getDestPdfPath()+String.format("%s_%s.pdf", customerData.getSsn(),customerData.getSummaryData().getSummaryYear()));
+//				
+//			}
+//			
+//		});
 		
 		System.out.print("\n<<<<< PDF Generation Completed >>>>>\n");
 		
@@ -187,13 +187,13 @@ public class CsvProcessorService {
 			accountData.setDataHolder(listOfData);
 			
 			String customerAccountType=
-					datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("SparKonto".toLowerCase())?"sparkonto":
-						datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("Banklån".toLowerCase())?"banklån":
+					datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("konto".toLowerCase())?"konto":
+						datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("lån".toLowerCase())?"lån":
 							datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())];
 			
 			switch(customerAccountType) {
 				
-				case "sparkonto" -> {
+				case "konto" -> {
 					
 					for(int i=0;i<savingsAccountIndexes.length-2;i++) {
 						
@@ -220,7 +220,7 @@ public class CsvProcessorService {
 					
 				}
 				
-				case "banklån" -> {
+				case "lån" -> {
 					
 					for(int i=0;i<loanAccountIndexes.length-2;i++) {
 						
