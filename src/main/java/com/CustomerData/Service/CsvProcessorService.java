@@ -6,19 +6,25 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
+
 import javax.management.openmbean.InvalidKeyException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
 import com.CustomerData.Model.AccountData;
 import com.CustomerData.Model.CustomerData;
 import com.CustomerData.Model.DataHolder;
@@ -39,6 +45,8 @@ public class CsvProcessorService {
 	private static List<String> accountDataHeadings;
 	
 	private static List<String> summaryDataHeadings;
+	
+	private static List<Integer> indexesToFetch;
 	
 	private static LinkedHashMap<String, List<String[]>> accountData;
 	
@@ -103,9 +111,10 @@ public class CsvProcessorService {
 		
 		List<String> inputLines=getFileData(sourcePath);
 		List<String[]> inputData=parseAndSplitInputData(inputLines);
+		List<String[]> processedData=dataProcessor(inputData);
 	
-		accountDataHeadings=new LinkedList<>(Arrays.asList(inputData.remove(0)));
-		accountData=removeDuplicates(inputData, accountDataHeadings);
+		accountDataHeadings=new LinkedList<>(Arrays.asList(processedData.remove(0)));
+		accountData=removeDuplicates(processedData, accountDataHeadings);
 		
 	}
 		
@@ -136,6 +145,45 @@ public class CsvProcessorService {
 			return datas;
 			
 		}).collect(Collectors.toList());
+		
+	}
+	
+	private List<String[]> dataProcessor(List<String[]> inputData) {
+		
+		List<Integer[]> listOfIndexes=new LinkedList<>();
+		
+		inputData.stream().skip(1).peek(datas->{
+			
+			List<Integer> indexList=new LinkedList<>();
+			
+			for(int i=0;i<datas.length;i++) {
+				
+				
+				String regexPattern = "\\+|\\b0(?:\\.0+)?\\b|N/A|n/a|\\s";
+
+		        // Create a Pattern object
+		        Pattern pattern = Pattern.compile(regexPattern);
+
+		        // Create a Matcher object
+		        Matcher matcher = pattern.matcher(datas[i]);
+		        
+		        if(!matcher.matches()) {
+		        	
+		        	indexList.add(i);
+		        	
+		        }
+		    
+			}
+			
+			listOfIndexes.add(indexList.toArray(new Integer[indexList.size()]));
+			
+		}).collect(Collectors.toList());
+		
+		Integer maxIndex=listOfIndexes.stream().max(Comparator.<Integer[],Integer>comparing(indexData->indexData.length)).orElse(new Integer[] {}).length;
+		
+		indexesToFetch=listOfIndexes.stream().filter(indexData->Integer.valueOf(indexData.length).equals(maxIndex)).map(indexData->List.of(indexData)).flatMapToInt(indexData->indexData.stream().mapToInt(Integer::valueOf)).distinct().sorted().boxed().collect(Collectors.toCollection(LinkedList<Integer>::new));
+		
+		return inputData;
 		
 	}
 	
@@ -172,10 +220,30 @@ public class CsvProcessorService {
 	
 	private List<AccountData> loadAccountDataCustom(List<String[]> inputData){
 		
-		Integer savingsAccountIndexes[]=loadIndexesForAccount(accountDataHeadings, headingsConfig.getSavingsAccount());
+		Integer neglectDataIndexes[]=loadIndexesForAccount(accountDataHeadings, headingsConfig.getNeglectData());
+		
+		indexesToFetch.removeAll(List.of(neglectDataIndexes));
+		
+		if(accountDataHeadings.contains(headingsConfig.getCapitalSharePercentage())) {
+			
+			Integer targetIndex=getIndexOfHeading(accountDataHeadings, headingsConfig.getCapitalSharePercentage());
+			
+			indexesToFetch.remove(targetIndex);
+			indexesToFetch.add(targetIndex);
+			
+		}
+		
+		if(accountDataHeadings.contains(headingsConfig.getReceivedInterestSharePercentage())) {
+			
+			Integer targetIndex=getIndexOfHeading(accountDataHeadings, headingsConfig.getReceivedInterestSharePercentage());
+			
+			indexesToFetch.remove(targetIndex);
+			indexesToFetch.add(targetIndex);
+			
+		}
 		
 		return inputData.stream().map(datas->{
-			
+				
 			List<DataHolder> listOfData=new LinkedList<>();
 			
 			String accountId=preceddingZeroRemover(datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getEngagementNumber())].toCharArray());
@@ -184,27 +252,23 @@ public class CsvProcessorService {
 			
 			accountData.setAccountName(String.join(" ", datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getProductText())], accountId));
 			accountData.setDataHolder(listOfData);
-			
-			for(int i=0;i<savingsAccountIndexes.length-2;i++) {
+
+			for(int i=0;i<indexesToFetch.size();i++) {
 				
-				Integer indexToFetch=savingsAccountIndexes[i];
-				
-				if(!(accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexToFetch).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
+				if(!(accountDataHeadings.get(indexesToFetch.get(i)).equalsIgnoreCase(headingsConfig.getCapitalSharePercentage())||accountDataHeadings.get(indexesToFetch.get(i)).equalsIgnoreCase(headingsConfig.getReceivedInterestSharePercentage()))) {
 					
-					datas[indexToFetch]=formatData(datas[indexToFetch]);
+					datas[indexesToFetch.get(i)]=formatData(datas[indexesToFetch.get(i)]);
 					
 				}else {
-					datas[indexToFetch]=String.format("%.0f", Double.parseDouble(datas[indexToFetch]));
+					datas[indexesToFetch.get(i)]=String.format("%.0f", Double.parseDouble(datas[indexesToFetch.get(i)]));
 				}
 				
-				listOfData.add(new DataHolder(accountDataHeadings.get(indexToFetch), (i==0)?datas[indexToFetch]+"%":datas[indexToFetch]));
+				listOfData.add(new DataHolder(accountDataHeadings.get(indexesToFetch.get(i)), datas[indexesToFetch.get(i)]));
 				
 			}
 			
-			Integer indexToFetch=savingsAccountIndexes.length;
-			
-			accountData.setBalanceShare(formatData(datas[savingsAccountIndexes[indexToFetch-2]]));
-			accountData.setInterestShare(formatData(datas[savingsAccountIndexes[indexToFetch-1]]));
+			accountData.setBalanceShare(formatData(datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getBalanceShare())]));
+			accountData.setInterestShare(formatData(datas[getIndexOfHeading(accountDataHeadings, headingsConfig.getReceivedInterestShare())]));
 			
 //			if(datas[getIndexOfHeading(accountDataHeadings,headingsConfig.getProductText())].toLowerCase().contains("SparKonto".toLowerCase())) {
 //				
@@ -378,7 +442,7 @@ public class CsvProcessorService {
 		return accountIndexes;
 		
 	}
-	
+		
 	private String formatData(String data) {
 		
 		try {

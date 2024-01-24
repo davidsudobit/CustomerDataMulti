@@ -21,8 +21,11 @@ public class Headings {
 	@Value("${csv.processor.default.pdf_dest_path}")
 	private String pdfDestPath;
 	
-	@Value("${target.headings.savings_account}")
-	private String savingsAccount;
+//	@Value("${target.headings.savings_account}")
+//	private String savingsAccount;
+	
+	@Value("${target.headings.neglect.data}")
+	private String neglectData;
 	
 	@Value("${target.headings.loan_account}")
 	private String loanAccount;
@@ -41,6 +44,12 @@ public class Headings {
 	
 	@Value("${target.heading.received_interest_share_percentage}")
 	private String receivedInterestSharePercentage;
+	
+	@Value("${target.heading.balance_share}")
+	private String balanceShare;
+	
+	@Value("${target.heading.received_interest_share}")
+	private String receivedInterestShare;
 	
 	@Value("${target.heading.year_concerned}")
 	private String yearConcerned;

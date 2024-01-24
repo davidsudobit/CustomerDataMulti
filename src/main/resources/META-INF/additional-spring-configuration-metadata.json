@@ -138,5 +138,20 @@
     "name": "csv.processor.default.pdf_dest_path",
     "type": "java.lang.String",
     "description": "A description for 'csv.processor.default.pdf_dest_path'"
+  },
+  {
+    "name": "target.headings.neglect.data",
+    "type": "java.lang.String",
+    "description": "A description for 'target.headings.neglect.data'"
+  },
+  {
+    "name": "target.heading.balance_share",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.balance_share'"
+  },
+  {
+    "name": "target.heading.received_interest_share",
+    "type": "java.lang.String",
+    "description": "A description for 'target.heading.received_interest_share'"
   }
 ]}
