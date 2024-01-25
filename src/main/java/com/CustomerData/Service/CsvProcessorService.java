@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -273,6 +272,12 @@ public class CsvProcessorService {
 				}
 				
 				if(!datas[indexesToFetch.get(i)].matches("\\b0(?:\\.0+)?\\b")) {
+					
+					if(accountDataHeadings.get(indexesToFetch.get(i)).equalsIgnoreCase("Interest1")) {
+						
+						datas[indexesToFetch.get(i)]=datas[indexesToFetch.get(i)]+"%";
+						
+					}
 					
 					listOfData.add(new DataHolder(accountDataHeadings.get(indexesToFetch.get(i)), datas[indexesToFetch.get(i)]));
 				
