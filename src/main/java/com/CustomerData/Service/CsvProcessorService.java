@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -85,6 +88,8 @@ public class CsvProcessorService {
 		
 		System.out.print("\n<<<<< PDF Generation Started >>>>>\n");
 		
+		LocalDateTime started=LocalDateTime.now();
+		
 		System.out.println("\n"+pdfService.generatePdf(pathData, customerDatas.get(0))+"\n");
 		
 //		customerDatas.forEach(customerData->{
@@ -100,6 +105,10 @@ public class CsvProcessorService {
 //			}
 //			
 //		});
+		
+		LocalDateTime ended=LocalDateTime.now();
+		
+		System.out.print("\n<<<<< TimeTaken : "+started.until(ended, ChronoUnit.MILLIS)+" >>>>>\n");
 		
 		System.out.print("\n<<<<< PDF Generation Completed >>>>>\n");
 		
@@ -263,7 +272,11 @@ public class CsvProcessorService {
 					datas[indexesToFetch.get(i)]=String.format("%.0f", Double.parseDouble(datas[indexesToFetch.get(i)]));
 				}
 				
-				listOfData.add(new DataHolder(accountDataHeadings.get(indexesToFetch.get(i)), datas[indexesToFetch.get(i)]));
+				if(!datas[indexesToFetch.get(i)].matches("\\b0(?:\\.0+)?\\b")) {
+					
+					listOfData.add(new DataHolder(accountDataHeadings.get(indexesToFetch.get(i)), datas[indexesToFetch.get(i)]));
+				
+				}
 				
 			}
 			
