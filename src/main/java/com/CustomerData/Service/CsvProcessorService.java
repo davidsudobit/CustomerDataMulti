@@ -89,27 +89,27 @@ public class CsvProcessorService {
 		
 		LocalDateTime started=LocalDateTime.now();
 		
-		System.out.println("\n"+pdfService.generatePdf(pathData, customerDatas.get(0))+"\n");
+//		System.out.println("\n"+pdfService.generatePdf(pathData, customerDatas.get(0))+"\n");
 		
-//		customerDatas.forEach(customerData->{
-//			
-//			try {
-//				
-//				System.out.print("\n"+pdfService.generatePdf(pathData, customerData)+"\n");
-//				
-//			} catch (Exception e) {
-//				
-//				System.out.printf("Error Generating PDF : [ %s ]", pathData.getDestPdfPath()+String.format("%s_%s.pdf", customerData.getSsn(),customerData.getSummaryData().getSummaryYear()));
-//				
-//			}
-//			
-//		});
+		customerDatas.forEach(customerData->{
+			
+			try {
+				
+				System.out.print("\n"+pdfService.generatePdf(pathData, customerData)+"\n");
+				
+			} catch (Exception e) {
+				
+				System.out.printf("Error Generating PDF : [ %s ]", pathData.getDestPdfPath()+String.format("%s_%s.pdf", customerData.getSsn(),customerData.getSummaryData().getSummaryYear()));
+				
+			}
+			
+		});
 		
 		LocalDateTime ended=LocalDateTime.now();
 		
-		System.out.print("\n<<<<< TimeTaken : "+started.until(ended, ChronoUnit.MILLIS)+" >>>>>\n");
+//		System.out.print("\n<<<<< TimeTaken : "+started.until(ended, ChronoUnit.MILLIS)+"ms >>>>>\n");
 		
-		System.out.print("\n<<<<< PDF Generation Completed >>>>>\n");
+		System.out.print("\n<<<<< PDF Generation Completed in "+ started.until(ended, ChronoUnit.MILLIS)+"ms >>>>>\n");
 		
 	}
 	
