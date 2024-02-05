@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<title>Customer Data</title>
+</head>
+
+<body class="ikano-regular">
+
+	<style>
+	
+		.ikano-regular {
+		
+			font-family: 'IkanoSansRegular', sans-serif;
+			
+		}
+		
+		.ikano-bold {
+		
+			font-family: 'IkanoSansBold', sans-serif;
+			
+		}
+		
+		@font-face {
+		
+    		font-family: 'IkanoSansRegular';
+    		src: url('classpath:fonts/IkanoSans/IkanoSans-Regular.otf') format('opentype');
+    		
+    	}
+    	
+    	@font-face {
+		
+    		font-family: 'IkanoSansBold';
+    		src: url('classpath:fonts/IkanoSans/IkanoSans-Bold.otf') format('opentype');
+    		
+    	}
+
+	</style>
+
+	<div style="display: block; position: relative; height: 75px; width: 100%;">
+		<div style="position: relative; display: inline-block; text-align: left; width: 50%;">
+		
+			<img style="display: block;" width="50" height="50" src="./src/main/resources/pdf-resources/images/logo.png"
+			alt=""></img>
+			
+		</div>
+		<div style="width: 180px; position: relative; display: inline-block; width: 50%; text-align: right;">
+			
+			<div th:text="${customerCareOfAddress}" style="padding-bottom: 4px;"></div>
+			<div th:text="${customerStreetName}" style="padding-bottom: 4px;"></div>
+			<div th:text="${customerPostalCode}+' '+${customerCity}" style="padding-bottom: 4px;"></div>
+			
+		</div>
+	</div>
+
+	<div style="position: relative; display: block; height: 120px; width: 100%;">
+			
+		<div style=" position: relative; width: 80%;">
+
+			<h2 class="ikano-bold" th:text="${customerName}+' '+${summaryYear}"></h2>
+	
+			<p class="text-content" th:text="${customerContent}"></p>
+
+		</div>
+		
+	</div>
+
+	<div style="position: relative; left: 0px; width: 100%; margin-top: 12px;" th:if="${not #lists.isEmpty(customerDatas)}">
+
+		<div style="margin-bottom: 24px;" th:each="customerData : ${customerDatas}">
+		
+			<div class="ikano-bold" style="font-size: 16px; font-weight: bold; padding: 3px 0px;" th:text="${customerData?.accountName}"></div>
+		
+			<div th:if="${not #lists.isEmpty(customerData?.dataHolder)}">
+			
+				<div th:each="data : ${customerData?.dataHolder}">
+	
+					<div style="padding: 3px 0px;" th:if="${not (#strings.equals(data?.dataHeader,'CapitalSharePercentage')||#strings.equals(data?.dataHeader,'ReceivedInterestSharePercentage'))}">
+						<div style="position: relative; display: inline-block; text-align: left; width: 50%" th:text="${data?.dataHeader}"></div>
+						<div style="position: relative; display: inline-block; text-align: right; width: 49%;" th:text="${data?.dataContent}"></div>
+					</div>
+					
+					<div style="padding: 3px 0px;" th:if="${#strings.equals(data?.dataHeader,'CapitalSharePercentage')}">
+						<div style="position: relative; display: inline-block; text-align: left; width: 50%" th:text="${data?.dataHeader} + ' : ' + ${data?.dataContent}+'%'"></div>
+						<div style="position: relative; display: inline-block; text-align: right; width: 49%;" th:text="${customerData?.balanceShare}"></div>
+					</div>
+					
+					<div class="ikano-bold" style="background-color: lightgrey; font-style: italic; font-weight: bold; padding: 3px 0px;"
+						 th:if="${#strings.equals(data?.dataHeader,'ReceivedInterestSharePercentage')}">
+						<div style="position: relative; display: inline-block; text-align: left; width: 50%" th:text="${data?.dataHeader} + ' : ' + ${data?.dataContent}+'%'"></div>
+						<div style="position: relative; display: inline-block; text-align: right; width: 49%;" th:text="${customerData?.interestShare}"></div>
+					</div>
+	
+				</div>
+	
+			</div>
+		
+		</div>
+		
+	</div>
+	
+	<div class="ikano-bold" style="width: 100%; background-color: lightgrey; font-style: italic; font-weight: bold;">
+		
+		<div style="width: 100%; padding: 2px 0px;">
+			<div style="display: inline-block; width: 50%; text-align: left;">SumReceivedInterest</div>
+			<div style="display: inline-block; width: 49%; text-align: right;" th:text="${sumReceivedInterest}"></div>
+		</div>
+		
+		<div style="width: 100%; padding: 2px 0px;">
+			<div style="display: inline-block; width: 50%; text-align: left;">SumPreliminaryTax</div>
+			<div style="display: inline-block; width: 49%; text-align: right;" th:text="${sumPreliminaryTax}"></div>
+		</div>
+		
+		<div style="width: 100%; padding: 2px 0px;">
+			<div style="display: inline-block; width: 50%; text-align: left;">SumPaidInterest</div>
+			<div style="display: inline-block; width: 49%; text-align: right;" th:text="${sumPaidInterest}"></div>
+		</div>
+	
+	</div>
+
+</body>
+
+	<!-- <style>
+	
+		.heading {
+			/* padding: 12px 12px; */
+			margin-top: 30px;
+			margin-bottom: 12px;
+		}
+
+		.text-content {
+			width: 600px;
+			/* padding: 0px 12px; */
+		}
+		
+		.data-list {
+			padding: 4px 6px;
+		}
+		
+	</style> -->
+	
+</html>
